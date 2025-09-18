@@ -217,6 +217,16 @@
             box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
         }
 
+        .btn-info {
+            background: linear-gradient(45deg, #17a2b8, #138496);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(23, 162, 184, 0.4);
+        }
+
         .btn-small {
             padding: 5px 10px;
             font-size: 12px;
@@ -235,6 +245,10 @@
             cursor: pointer;
             font-size: 12px;
             z-index: 2;
+        }
+
+        .file-input {
+            display: none;
         }
 
         .table-container {
@@ -290,7 +304,6 @@
             background: #f8f9fa;
         }
 
-        /* Student mode - only show current student row */
         .student-mode .weekplan-table tr:not(.student-current-row):not(:first-child) {
             display: none;
         }
@@ -393,7 +406,6 @@
             display: none !important;
         }
 
-        /* Management sections */
         .management-section {
             margin: 20px;
             background: white;
@@ -475,6 +487,43 @@
             transition: width 0.3s ease;
         }
 
+        .import-export-section {
+            margin: 20px;
+            padding: 20px;
+            background: #e8f4fd;
+            border: 2px solid #17a2b8;
+            border-radius: 12px;
+        }
+
+        .import-export-section h3 {
+            color: #17a2b8;
+            margin-bottom: 15px;
+        }
+
+        .import-export-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border: 1px solid #f5c6cb;
+        }
+
         @media (max-width: 768px) {
             .controls {
                 flex-direction: column;
@@ -498,6 +547,10 @@
             .management-list {
                 flex-direction: column;
             }
+
+            .import-export-buttons {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -506,13 +559,13 @@
         <!-- Login Screen -->
         <div id="loginScreen">
             <div class="header">
-                <h1>🔐 Inloggen</h1>
+                <h1>Inloggen</h1>
             </div>
             <div class="login-container">
                 <div class="login-form">
                     <h2>Kies je rol</h2>
-                    <button class="btn btn-primary" onclick="showTeacherLogin()" style="width: 100%; margin-bottom: 15px;">👩‍🏫 Leerkracht</button>
-                    <button class="btn btn-secondary" onclick="showStudentLogin()" style="width: 100%;">👨‍🎓 Leerling</button>
+                    <button class="btn btn-primary" onclick="showTeacherLogin()" style="width: 100%; margin-bottom: 15px;">Leerkracht</button>
+                    <button class="btn btn-secondary" onclick="showStudentLogin()" style="width: 100%;">Leerling</button>
                 </div>
             </div>
         </div>
@@ -520,8 +573,8 @@
         <!-- Teacher Login -->
         <div id="teacherLoginScreen" class="hidden">
             <div class="header">
-                <h1>👩‍🏫 Leerkracht Login</h1>
-                <button class="logout-btn" onclick="showMainLogin()">← Terug</button>
+                <h1>Leerkracht Login</h1>
+                <button class="logout-btn" onclick="showMainLogin()">Terug</button>
             </div>
             <div class="login-container">
                 <div class="login-form">
@@ -539,8 +592,8 @@
         <!-- Student Login -->
         <div id="studentLoginScreen" class="hidden">
             <div class="header student-mode">
-                <h1>👨‍🎓 Leerling Login</h1>
-                <button class="logout-btn" onclick="showMainLogin()">← Terug</button>
+                <h1>Leerling Login</h1>
+                <button class="logout-btn" onclick="showMainLogin()">Terug</button>
             </div>
             <div class="login-container">
                 <div class="login-form">
@@ -557,9 +610,21 @@
         <!-- Teacher Dashboard -->
         <div id="teacherDashboard" class="hidden">
             <div class="header">
-                <h1>📚 Weekplan Beheer</h1>
+                <h1>Weekplan Beheer</h1>
                 <div class="mode-indicator">Leerkracht Modus</div>
                 <button class="logout-btn" onclick="logout()">Uitloggen</button>
+            </div>
+
+            <!-- Import/Export Section -->
+            <div class="import-export-section">
+                <h3>Data Synchronisatie</h3>
+                <p>Gebruik deze functies om je data tussen verschillende apparaten te delen:</p>
+                <div class="import-export-buttons">
+                    <button class="btn btn-info" onclick="exportData()">Downloaden (Export)</button>
+                    <button class="btn btn-warning" onclick="document.getElementById('importFile').click()">Uploaden (Import)</button>
+                    <input type="file" id="importFile" class="file-input" accept=".json" onchange="importData(event)">
+                </div>
+                <div id="importExportMessage"></div>
             </div>
 
             <div class="controls">
@@ -571,16 +636,16 @@
                     <label for="taskName">Taak naam:</label>
                     <input type="text" id="taskName" placeholder="Voer taak in...">
                 </div>
-                <button class="btn btn-primary" onclick="addStudent()">➕ Leerling</button>
-                <button class="btn btn-primary" onclick="addTask()">📝 Taak</button>
-                <button class="btn btn-secondary" onclick="changePassword()">🔒 Wachtwoord</button>
-                <button class="btn btn-danger" onclick="clearAll()">🗑️ Alles Wissen</button>
+                <button class="btn btn-primary" onclick="addStudent()">Leerling</button>
+                <button class="btn btn-primary" onclick="addTask()">Taak</button>
+                <button class="btn btn-secondary" onclick="changePassword()">Wachtwoord</button>
+                <button class="btn btn-danger" onclick="clearAll()">Alles Wissen</button>
             </div>
 
             <!-- Student Management -->
             <div class="management-section">
                 <div class="management-header">
-                    👥 Leerlingen Beheren
+                    Leerlingen Beheren
                 </div>
                 <div class="management-content">
                     <p>Beheer je leerlingen hier. Je kunt namen bewerken of leerlingen verwijderen.</p>
@@ -593,7 +658,7 @@
             <!-- Task Management -->
             <div class="management-section">
                 <div class="management-header">
-                    📋 Taken Beheren
+                    Taken Beheren
                 </div>
                 <div class="management-content">
                     <p>Beheer je taken hier. Je kunt taken bewerken of verwijderen.</p>
@@ -605,7 +670,7 @@
 
             <!-- Progress per student -->
             <div class="student-progress-bar" id="studentProgressSection" style="display: none;">
-                <h3>📈 Voortgang per Leerling</h3>
+                <h3>Voortgang per Leerling</h3>
                 <div id="studentProgressList">
                     <!-- Dynamically filled -->
                 </div>
@@ -645,18 +710,18 @@
         <!-- Student Dashboard -->
         <div id="studentDashboard" class="hidden">
             <div class="header student-mode">
-                <h1 id="studentWelcome">👨‍🎓 Mijn Weekplan</h1>
+                <h1 id="studentWelcome">Mijn Weekplan</h1>
                 <div class="mode-indicator">Leerling Modus</div>
                 <button class="logout-btn" onclick="logout()">Uitloggen</button>
             </div>
 
             <div class="student-selector">
-                <h3>Welkom, <span id="currentStudentName"></span>! 🌟</h3>
+                <h3>Welkom, <span id="currentStudentName"></span>!</h3>
                 <p>Vink de taken af die je hebt voltooid</p>
             </div>
 
             <div class="student-progress-bar">
-                <h3>📊 Mijn Voortgang</h3>
+                <h3>Mijn Voortgang</h3>
                 <div class="progress-item">
                     <div class="progress-label">
                         <span>Voltooide taken</span>
@@ -687,33 +752,143 @@
 
         // Load data from storage on page load
         function loadData() {
-            try {
-                const savedStudents = JSON.parse(localStorage.getItem('weekplan_students') || '[]');
-                const savedTasks = JSON.parse(localStorage.getItem('weekplan_tasks') || '[]');
-                const savedCompletion = JSON.parse(localStorage.getItem('weekplan_completion') || '{}');
-                const savedPassword = localStorage.getItem('weekplan_password');
-                
-                students = savedStudents;
-                tasks = savedTasks;
-                completionData = savedCompletion;
-                if (savedPassword) {
-                    teacherPassword = savedPassword;
-                }
-            } catch (e) {
-                console.log('Geen opgeslagen data gevonden');
+            const data = JSON.parse(localStorage.getItem('weekplan_data') || 'null');
+            if (data) {
+                students = data.students || [];
+                tasks = data.tasks || [];
+                completionData = data.completionData || {};
+                teacherPassword = data.teacherPassword || 'weekplan2024';
             }
         }
 
-        // Save data to storage
+        // Save all data to storage
         function saveData() {
-            try {
-                localStorage.setItem('weekplan_students', JSON.stringify(students));
-                localStorage.setItem('weekplan_tasks', JSON.stringify(tasks));
-                localStorage.setItem('weekplan_completion', JSON.stringify(completionData));
-                localStorage.setItem('weekplan_password', teacherPassword);
-            } catch (e) {
-                console.log('Kon data niet opslaan');
-            }
+            const data = {
+                students,
+                tasks,
+                completionData,
+                teacherPassword,
+                lastUpdated: new Date().toISOString()
+            };
+            localStorage.setItem('weekplan_data', JSON.stringify(data));
+        }
+
+        // Export data to file
+        function exportData() {
+            const data = {
+                students,
+                tasks,
+                completionData,
+                teacherPassword,
+                exportDate: new Date().toISOString(),
+                version: '1.0'
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `weekplan-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showMessage('Data succesvol gedownload! Je kunt dit bestand op andere apparaten uploaden.', 'success');
+        }
+
+        // Import data from file
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    // Validate data structure
+                    if (!importedData.students || !importedData.tasks || !importedData.completionData) {
+                        throw new Error('Ongeldig bestandsformaat');
+                    }
+
+                    // Ask user what to do with existing data
+                    const choice = confirm(
+                        'Wil je de bestaande data vervangen door de geïmporteerde data?\n\n' +
+                        'OK = Vervangen (huidige data wordt overschreven)\n' +
+                        'Annuleren = Samenvoegen (geïmporteerde data wordt toegevoegd)'
+                    );
+
+                    if (choice) {
+                        // Replace all data
+                        students = importedData.students;
+                        tasks = importedData.tasks;
+                        completionData = importedData.completionData;
+                        teacherPassword = importedData.teacherPassword || teacherPassword;
+                    } else {
+                        // Merge data
+                        mergeImportedData(importedData);
+                    }
+
+                    saveData();
+                    updateTable();
+                    updateStats();
+                    updateManagementSections();
+
+                    showMessage(
+                        `Data succesvol geïmporteerd! ` +
+                        `${importedData.students.length} leerlingen, ${importedData.tasks.length} taken geladen.`, 
+                        'success'
+                    );
+
+                } catch (error) {
+                    console.error('Import error:', error);
+                    showMessage('Fout bij importeren: ' + error.message, 'error');
+                }
+            };
+
+            reader.readAsText(file);
+            event.target.value = ''; // Reset file input
+        }
+
+        // Merge imported data with existing data
+        function mergeImportedData(importedData) {
+            // Merge students (avoid duplicates)
+            const existingStudentNames = students.map(s => s.toLowerCase());
+            importedData.students.forEach(student => {
+                if (!existingStudentNames.includes(student.toLowerCase())) {
+                    students.push(student);
+                }
+            });
+
+            // Merge tasks (avoid duplicates)
+            const existingTaskNames = tasks.map(t => t.toLowerCase());
+            importedData.tasks.forEach(task => {
+                if (!existingTaskNames.includes(task.toLowerCase())) {
+                    tasks.push(task);
+                }
+            });
+
+            // Merge completion data
+            Object.keys(importedData.completionData).forEach(key => {
+                const [student, task] = key.split('_');
+                if (students.includes(student) && tasks.includes(task)) {
+                    completionData[key] = importedData.completionData[key];
+                }
+            });
+        }
+
+        // Show success/error messages
+        function showMessage(message, type) {
+            const messageDiv = document.getElementById('importExportMessage');
+            messageDiv.className = type === 'success' ? 'success-message' : 'error-message';
+            messageDiv.textContent = message;
+            
+            // Clear message after 5 seconds
+            setTimeout(() => {
+                messageDiv.textContent = '';
+                messageDiv.className = '';
+            }, 5000);
         }
 
         // Screen management
@@ -967,8 +1142,8 @@
                 item.className = 'management-item';
                 item.innerHTML = `
                     <span>${student}</span>
-                    <button class="btn btn-warning btn-small" onclick="editStudent('${student}')">✏️ Bewerk</button>
-                    <button class="btn btn-danger btn-small" onclick="removeStudent('${student}')">🗑️ Verwijder</button>
+                    <button class="btn btn-warning btn-small" onclick="editStudent('${student}')">Bewerk</button>
+                    <button class="btn btn-danger btn-small" onclick="removeStudent('${student}')">Verwijder</button>
                 `;
                 studentList.appendChild(item);
             });
@@ -985,8 +1160,8 @@
                 item.className = 'management-item';
                 item.innerHTML = `
                     <span>${task}</span>
-                    <button class="btn btn-warning btn-small" onclick="editTask('${task}')">✏️ Bewerk</button>
-                    <button class="btn btn-danger btn-small" onclick="removeTask('${task}')">🗑️ Verwijder</button>
+                    <button class="btn btn-warning btn-small" onclick="editTask('${task}')">Bewerk</button>
+                    <button class="btn btn-danger btn-small" onclick="removeTask('${task}')">Verwijder</button>
                 `;
                 taskList.appendChild(item);
             });
